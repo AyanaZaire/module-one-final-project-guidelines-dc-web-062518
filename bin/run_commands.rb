@@ -6,6 +6,8 @@ end
 def get_command
   puts "What would you like to do now? (Please, type in your command below)"
   command = gets.chomp
+  puts "================"
+  command
 end
 
 def help_method
@@ -32,7 +34,11 @@ def execute_command(command, user)
   elsif command == "help"
     execute_command(help_method, user)
   elsif command == "my list"
-    user.see_book_choices
+    if user.books == []
+      puts "You don't have any books in your list!"
+    else
+      user.see_book_choices
+    end
     execute_command(get_command, user)
   elsif command == "all books"
     Book.see_all_books
@@ -59,21 +65,28 @@ def add_to_list_command(user)
   puts "Which book would you like to add?"
   puts "(Please type in the book ID. If you'd like to see the book database, type 'all books')"
   input = gets.chomp
-  # we wanted to allow the user to see all books before making their choice.
+  puts "================"
   if input == "all books"
-    execute_command("all books", user)
+    # we wanted to allow the user to see all books before making their choice.
+    Book.see_all_books
+    puts "Now that you've seen all the books..."
+    add_to_list_command(user)
   elsif Book.exists?(input) == false
-    puts "We're sorry, we couldn't find a book with that number."
+    # this checks to see if the book exists in the database.
+    # The "input" is always a string, so we converted it to an integer and checked to see if it's an integer
+    puts "We're sorry, we couldn't find a book with that ID."
     execute_command("add to list", user)
   elsif Book.exists?(input) == true
+    # this executes only if the book exists in the database.
     book = Book.find(input)
     if user.books.include?(book)
+      #this checks if the book already exists in that user's list
       puts "This book is already in your list!"
     else
       user.add_to_book_choices(input)
+      #if the book isn't already in their list, this adds the book to their list
       puts "Great! #{book.title} by #{book.author} has been added to your list."
-      puts "Here is your new list:"
-      user.see_book_choices
+      show_list(user)
     end
     execute_command(get_command, user)
   else
@@ -81,26 +94,42 @@ def add_to_list_command(user)
   end
 end
 
+def show_list(user)
+  puts "Here is your new list:"
+  user.see_book_choices
+end
+
 def remove_from_list(user)
   puts "Which book would you like to remove?"
-  puts "(Please type in the book ID. If you'd like to see your book list, type 'my list')"
+  puts "Please type in the book ID."
+  puts "(If you'd like to see your book list, type 'my list'. If you don't want to remove a book from your list, type 'go home')"
   input = gets.chomp
+  puts "================"
   if input == "my list" #this is the case where they want to see their list first
     user.see_book_choices
     puts "Now that you've seen your list, input the book ID of the book you'd like to remove."
     id = gets.chomp
     user.delete_book_choice(id)
-    puts "Here is your new list:"
-    binding.pry
-    user.see_book_choices
+    show_list(user)
     execute_command(get_command, user)
-  else # this is the case where they put in a bookid and it exists in their list
+  elsif input == "go home"
+    # this is if the user decides they don't want to remove a book after all
+    execute_command(get_command, user)
+  elsif Book.exists?(input) && user.books.include?(Book.find(input)) == false
+    # this is the case where the book doesn't exist in their list
+    puts "Sorry, your list doesn't have a book with that ID number."
+    execute_command("remove from list", user)
+  elsif Book.exists?(input) && user.books.include?(Book.find(input))
+    # this is the case where they put in a bookid and it exists in their list
     user.delete_book_choice(input)
-    puts "Here is your new list:"
-    user.see_book_choices
+    show_list(user)
     execute_command(get_command, user)
-  #elsif # this is the case where the book doesn't exist in their list
-
-  #elsif # unknown command
- end
+  elsif Book.exists?(input) == false
+    # this is if the input is either not an integer or there is not a book with that ID.
+    puts "Sorry, our database doesn't have a book with that ID."
+    execute_command("remove from list", user)
+  else
+    # unknown command
+    invalid_command(user)
+  end
 end

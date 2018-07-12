@@ -5,8 +5,9 @@ class User < ActiveRecord::Base
   has_many :books, through: :user_book_choices
 
   def add_to_book_choices(book_id)
-    self.books << Book.find(book_id)
-    #UserBookChoice.create(book_id: book_id, user_id: self.id)
+    #self.books << Book.find(book_id)
+    UserBookChoice.create(book_id: book_id, user_id: self.id)
+    self.reload
   end
 
   def see_book_choices
@@ -22,9 +23,9 @@ class User < ActiveRecord::Base
   # end
 
   def delete_book_choice(book_id)
-    #destroy book object based on book_id given from user
-    self.books.destroy(book_id)
-    # UserBookChoice.where(book_id: book_id, user_id: self.id).destroy_all
+    # self.books.destroy(book_id)
+    UserBookChoice.where(book_id: book_id, user_id: self.id).destroy_all
+    self.reload
   end
 
 end
