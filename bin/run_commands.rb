@@ -1,3 +1,4 @@
+require 'pry'
 def welcome_user(user)
   puts "Welcome, #{user.name}!"
 end
@@ -90,6 +91,7 @@ def remove_from_list(user)
     id = gets.chomp
     user.delete_book_choice(id)
     puts "Here is your new list:"
+    binding.pry
     user.see_book_choices
     execute_command(get_command, user)
   else # this is the case where they put in a bookid and it exists in their list
