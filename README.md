@@ -43,6 +43,10 @@ Projects need to be approved prior to launching into them, so take some time to 
 6. Prepare a presentation to follow your video.(3 minutes max)
     * Your presentation should:
       - Describe something you struggled to build, and show us how you ultimately implemented it in your code.
+        - .exists?(how to find if something exists in database)
+        - caching
+        - relationships - has many through and belongs to (learning that we can do user.books)
+        - where and destroy vs. destroy all
       - Discuss 3 things you learned in the process of working on this project.
       - Address, if anything, what you would change or add to what you have today?
       - Present any code you would like to highlight.   

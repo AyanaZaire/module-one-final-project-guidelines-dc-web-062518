@@ -1,3 +1,4 @@
+require 'pry'
 def welcome_user(user)
   puts "Welcome, #{user.name}!"
 end
@@ -32,9 +33,10 @@ def execute_command(command, user)
     execute_command(help_method, user)
   elsif command == "my list"
     user.see_book_choices
-    execute_command(get_command)
+    execute_command(get_command, user)
   elsif command == "all books"
     Book.see_all_books
+    execute_command(get_command, user)
   elsif command == "remove from list"
     remove_from_list(user)
   else
@@ -89,13 +91,14 @@ def remove_from_list(user)
     id = gets.chomp
     user.delete_book_choice(id)
     puts "Here is your new list:"
+    binding.pry
     user.see_book_choices
-    execute_command(get_command)
+    execute_command(get_command, user)
   else # this is the case where they put in a bookid and it exists in their list
     user.delete_book_choice(input)
     puts "Here is your new list:"
     user.see_book_choices
-    execute_command(get_command)
+    execute_command(get_command, user)
   #elsif # this is the case where the book doesn't exist in their list
 
   #elsif # unknown command
