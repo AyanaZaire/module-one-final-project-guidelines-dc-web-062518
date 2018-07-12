@@ -23,6 +23,7 @@ class User < ActiveRecord::Base
 
   def delete_book_choice(book_id)
     #destroy book object based on book_id given from user
+    
     self.books.destroy(book_id)
     # UserBookChoice.where(book_id: book_id, user_id: self.id).destroy_all
   end
