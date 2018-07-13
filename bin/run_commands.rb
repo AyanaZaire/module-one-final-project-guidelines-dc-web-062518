@@ -14,6 +14,7 @@ def help_method
   puts "Here are some commands you can type into our app:"
   puts "'my list' - to see you your reading list."
   puts "'all books' - to see all the books in our database."
+  puts "'search google' - to find books via google search."
   puts "'add to list' - to add a book to your reading list."
   puts "'remove from list' - to remove a book from your list."
   puts "'logout' - to log out of the app."
@@ -45,6 +46,10 @@ def execute_command(command, user)
     execute_command(get_command, user)
   elsif command == "remove from list"
     remove_from_list(user)
+  elsif command == "search google"
+    puts "Please type your search term:"
+    search_term = gets.chomp
+    find_book_by_search_term(search_term, user)
   else
     invalid_command(user)
   end
@@ -131,5 +136,30 @@ def remove_from_list(user)
   else
     # unknown command
     invalid_command(user)
+  end
+end
+
+def find_book_by_search_term(search_term, user)
+  a = search_term.split(" ")
+  a = a.join("%20")
+  all_books = RestClient.get("https://www.googleapis.com/books/v1/volumes?q=#{a}")
+  book_array = JSON.parse(all_books)["items"].first(10).to_a
+  book_array.each_with_index do |book_hash, index|
+    puts "Index #{index + 1}: #{book_hash["volumeInfo"]["title"]} by #{book_hash["volumeInfo"]["authors"][0]}"
+  end
+  puts "-----------------"
+  puts "To add one of these books to your list, please type the index number below. Otherwise, type 'go home'."
+  input = gets.chomp
+  if input == "go home"
+    execute_command(get_command, user)
+  else
+    index = input.to_i - 1
+    title = book_array[index]["volumeInfo"]["title"]
+    author = book_array[index]["volumeInfo"]["authors"][0]
+    book = Book.find_or_create_by(title: title, author: author)
+    UserBookChoice.create(user_id: user.id, book_id: book.id)
+    user.reload
+    show_list(user)
+    execute_command(get_command, user)
   end
 end
